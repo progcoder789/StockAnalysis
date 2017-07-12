@@ -26,7 +26,7 @@ namespace StockAnalyzer
             }
         }
 
-        public static void ExecuteQuery(string query, List<KeyValuePair<string, string>> parameters, DataTable dataTable)
+        public static void ExecuteQueryFillDataTable(string query, List<KeyValuePair<string, string>> parameters, DataTable dataTable)
         {
             using (var connection = new SqlConnection(Common.ConnectionString))
             {
@@ -36,7 +36,9 @@ namespace StockAnalyzer
                     {
                         command.Parameters.AddWithValue("@" + param.Key, param.Value);
                     }
+
                     connection.Open();
+
                     using (SqlDataAdapter da = new SqlDataAdapter(command))
                     {
                         // this will query your database and return the result to your datatable
@@ -61,6 +63,25 @@ namespace StockAnalyzer
                 }
             }
         }
+
+        public static async Task<bool> ExecuteQueryAsync(string query, List<KeyValuePair<string, string>> parameters)
+        {
+            using (var connection = new SqlConnection(Common.ConnectionString))
+            {
+                using (SqlCommand command = new SqlCommand(query, connection))
+                {
+                    foreach (var param in parameters)
+                    {
+                        command.Parameters.AddWithValue("@" + param.Key, param.Value);
+                    }
+                    connection.Open();
+                    int result = await command.ExecuteNonQueryAsync();
+                }
+            }
+
+            return true;
+        }
+
 
         public static Dictionary<string, List<string>> ExecuteReader(string query)
         {

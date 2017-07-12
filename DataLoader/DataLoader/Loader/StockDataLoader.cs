@@ -121,7 +121,7 @@ namespace StockAnalyzer
                         SMACalculator.CalculateSMA(60, index, rows);
                         index++;
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
                         //benign error 
                     }

@@ -12,26 +12,12 @@ namespace StockAnalyzer.CandleStick
 {
     public class AnalysisCommon
     {
-        private static string pathToScriptFile = @"DBScripts\AnalysisTables\SelectStockBySymbol.sql";
-        private static string sqlScript = File.ReadAllText(Common.GetScriptPath(pathToScriptFile));
+      
         private static ReaderWriterLock analysisResultLocker = new ReaderWriterLock();
 
         public static readonly int TrendPeriod = Convert.ToInt32(ConfigurationManager.AppSettings["TrendPeriod"]);
 
-        public static DataTable GetPrices(int symbolId, string symbol)
-        {
-            var date = Convert.ToDateTime(ConfigurationManager.AppSettings["StartTime"]);
-            var paramCollection = new List<KeyValuePair<string, string>>();
-
-            paramCollection.Add(new KeyValuePair<string, string>(Common.SymbolIdColumn, symbolId.ToString()));
-            paramCollection.Add(new KeyValuePair<string, string>(Common.DateColumn, date.ToString()));
-
-            var newSqlScript = sqlScript.Replace(Common.TableNameOld, symbol[0].ToString() + Common.TableNameSuffix);
-            var dt = StockDataLoader.MakeStockTable(symbol[0].ToString() + Common.TableNameSuffix);
-
-            SqlExecutor.ExecuteQuery(newSqlScript, paramCollection, dt);
-            return dt;
-        }
+       
 
         public static bool CheckTrend(int index, int count)
         {
@@ -124,7 +110,7 @@ namespace StockAnalyzer.CandleStick
 
         public static DataTable MakeAnalysisResultsTable()
         {
-           DataTable table = new DataTable("[dbo].[StagingAnalysisResults]");
+            DataTable table = new DataTable("[dbo].[StagingAnalysisResults]");
             // Declare variables for DataColumn and DataRow objects.
             Common.MakeIdentityColumn(Common.IdColumn, "System.Int32", table);
             Common.MakeNormalColumn(Common.MethodNameColumn, "System.String", table);

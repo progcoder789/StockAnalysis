@@ -41,7 +41,7 @@ namespace StockAnalyzer
                 paramCollection.Add(new KeyValuePair<string, string>(Common.SymbolIdColumn, symbol.Id.ToString()));
                 sqlScript = sqlScript.Replace(Common.TableNameOld, symbol.Symbol[0].ToString() + Common.TableNameSuffix);
                 dt = StockDataLoader.MakeStockTable(symbol.Symbol[0].ToString() + Common.TableNameSuffix);
-                SqlExecutor.ExecuteQuery(sqlScript, paramCollection, dt);
+                SqlExecutor.ExecuteQueryFillDataTable(sqlScript, paramCollection, dt);
                 Console.WriteLine(string.Format("Calculate SMA for Symbol:{0}", symbol.Symbol));
 
                 ////for (int i = 0; i < dt.Rows.Count; i++)

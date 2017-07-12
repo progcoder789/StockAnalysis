@@ -14,9 +14,6 @@ namespace StockAnalyzer
         private static DataTable MakeSymbolTable()
         {
             DataTable table = new DataTable("[dbo].[StagingStockSymbols]");
-            // Declare variables for DataColumn and DataRow objects.
-            DataColumn column;
-            DataRow row;
             Common.MakeIdentityColumn(Common.IdColumn, "System.Int32", table);
             Common.MakeNormalColumn(Common.SymbolColumn, "System.String", table);
             Common.MakeNormalColumn(Common.NameColumn, "System.String", table);

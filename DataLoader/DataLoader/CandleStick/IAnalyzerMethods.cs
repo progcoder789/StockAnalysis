@@ -11,6 +11,6 @@ namespace StockAnalyzer.CandleStick
 
         string Description { get; }
 
-        Task<bool> Run(DataTable dtPrices, DataTable rootTable);
+        Task<bool> Analyze(DataTable dtPrices, DataTable rootTable);
     }
 }

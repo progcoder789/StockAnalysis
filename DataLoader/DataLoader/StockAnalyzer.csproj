@@ -76,6 +76,7 @@
     <Compile Include="Common\Common.cs" />
     <Compile Include="DBInitializer.cs" />
     <Compile Include="Common\DTO.cs" />
+    <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Loader\SMACalculator.cs" />
     <Compile Include="Common\SqlExexutor.cs" />
     <Compile Include="Loader\StockDataLoader.cs" />
@@ -95,9 +96,11 @@
     <Content Include="DBScripts\AnalysisTables\CreateAnalysisResultsTable.sql" />
     <Content Include="DBScripts\AnalysisTables\CreateAnalysisStatisticTable.sql" />
     <Content Include="DBScripts\AnalysisTables\CreateTransferSP.sql" />
+    <Content Include="DBScripts\AnalysisTables\DropAnalysisStatisticTable.sql" />
     <Content Include="DBScripts\AnalysisTables\DropAnalysisTables.sql" />
     <Content Include="DBScripts\AnalysisTables\InsertAnalysisResults.sql" />
     <Content Include="DBScripts\AnalysisTables\InsertAnalysisStatistic.sql" />
+    <Content Include="DBScripts\AnalysisTables\SelectStatistic.sql" />
     <Content Include="DBScripts\StockDataTables\CreateAllStocksTable.sql" />
     <Content Include="DBScripts\StockDataTables\CreateStockSymbolsTable.sql" />
     <Content Include="DBScripts\StockDataTables\CreateStocksTable.sql" />

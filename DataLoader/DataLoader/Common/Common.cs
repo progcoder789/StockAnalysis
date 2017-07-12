@@ -54,6 +54,7 @@ namespace StockAnalyzer
         public static readonly string Last10YearValidColumn = "Last10YearValid";
         public static readonly string Last10YearQualifiedColumn = "Last10YearQualified";
 
+        public static bool Verbose = false;
 
         private static void MakeColumn(string columnName, string dataType, DataTable dataTable, bool isIdentity)
         {

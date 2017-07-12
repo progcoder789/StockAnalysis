@@ -28,8 +28,6 @@ namespace StockAnalyzer
             SqlExecutor.ExecuteScriptFile(@"DBScripts\AnalysisTables\CreateAnalysisAlertsTable.sql");
 
             InitialzeForAnalysisOnly();
-
-
         }
 
         public static void DropAllTables()
@@ -45,7 +43,6 @@ namespace StockAnalyzer
             //Create transfer data stored procedure
             SqlExecutor.ExecuteScriptFile(@"DBScripts\StockDataTables\CreateTransferDataSP.sql");
             SqlExecutor.ExecuteScriptFile(@"DBScripts\StockDataTables\CreateAllStocksTable.sql");
-            return;
         }
 
         public static void InitialzeForAnalysisOnly()
@@ -58,7 +55,17 @@ namespace StockAnalyzer
             SqlExecutor.ExecuteScriptFile(@"DBScripts\AnalysisTables\CreateAnalysisStatisticTable.sql");
             //Create Analysis result Transfer stored procedure
             SqlExecutor.ExecuteScriptFile(@"DBScripts\AnalysisTables\CreateTransferSP.sql");
-            return;
         }
+
+
+        public static void InitialzeForUpdate()
+        {
+            InitialzeForLoadOnly();
+            //Drop analysis statistic table
+            SqlExecutor.ExecuteScriptFile(@"DBScripts\AnalysisTables\DropAnalysisStatisticTable.sql");
+            //Create analysis statistic table
+            SqlExecutor.ExecuteScriptFile(@"DBScripts\AnalysisTables\CreateAnalysisStatisticTable.sql");
+        }
+
     }
 }

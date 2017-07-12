@@ -35,6 +35,10 @@ namespace StockAnalyzer
           HelpText = "Send Alerts")]
         public bool Alert { get; set; }
 
+        // omitting long name, default --verbose
+        [Option('v', DefaultValue = false,
+          HelpText = "Verbose Logging")]
+        public bool Verbose { get; set; }
     }
 
     class Program
@@ -49,37 +53,38 @@ namespace StockAnalyzer
 
             if (parser.ParseArguments(args, options))
             {
+                if (options.Verbose)
+                {
+                    Common.Verbose = true;
+                }
+
                 if (options.ReRun)
                 {
-                    //asdasdas
+                    //re run everything
                     DBInitializer.DropAllTables();
                     DBInitializer.CreateAllTables();
                     SymbolLoader.LoadSymbols();
                     var ret = StockDataLoader.LoadStockPrice(0).Result;
                     AnalyzerCoordinator.RunAnalysis();
                 }
-
-                if (options.Update)
+                else if (options.Update)
                 {
-                    DBInitializer.InitialzeForLoadOnly();
+                    DBInitializer.InitialzeForUpdate();
                     SymbolLoader.LoadSymbols();
                     var ret = StockDataLoader.LoadStockPrice(updatePeriod).Result;
-                    AnalyzerCoordinator.RunAnalysis();
+                    AnalyzerCoordinator.RunAnalysis(updatePeriod);
                 }
-
-                if (options.LoadStockData)
+                else if (options.LoadStockData)
                 {
                     DBInitializer.InitialzeForLoadOnly();
                     var ret = StockDataLoader.LoadStockPrice(0).Result;
                 }
-
-                if (options.Analysis )
+                else if (options.Analysis)
                 {
                     DBInitializer.InitialzeForAnalysisOnly();
                     AnalyzerCoordinator.RunAnalysis();
                 }
-
-                if (options.Alert)
+                else if (options.Alert)
                 {
 
                 }

@@ -86,49 +86,26 @@ namespace StockAnalyzer.CandleStick
             }
         }
 
-        public async Task<bool> Run(DataTable dtPrices, DataTable rootTable)
+        public async Task<bool> Analyze(DataTable dtPrices, DataTable rootTable)
         {
-            //string pathToScriptFile = @"DBScripts\AnalysisTables\InsertAnalysisResults.sql";
-            //string insertAnalysisResultsSqlScript = File.ReadAllText(Common.GetScriptPath(pathToScriptFile));
-
-            string pathToScriptFile = @"DBScripts\AnalysisTables\InsertAnalysisStatistic.sql";
-            string insertAnalysisStatisticSqlScript = File.ReadAllText(Common.GetScriptPath(pathToScriptFile));
-
-            int TotalQualified, TotalValid, Last1YearQualified, Last1YearValid,
-                Last3YearQualified, Last3YearValid, Last6YearQualified, Last6YearValid,
-                Last10YearQualified, Last10YearValid;
-
-            TotalQualified = TotalValid = Last1YearQualified = Last1YearValid =
-            Last3YearQualified = Last3YearValid = Last6YearQualified = Last6YearValid =
-            Last10YearQualified = Last10YearValid = 0;
-
             var rows = dtPrices.Rows;
             if (rows.Count == 0)
                 return false;
 
             string symbolId = rows[0][Common.SymbolIdColumn].ToString();
             var table = AnalysisCommon.MakeAnalysisResultsTable();
+
             Console.WriteLine(string.Format("Analyzing Symbol {0} with method {1}", symbolId, _name));
+
             for (int i = 0; i < rows.Count; i++)
             {
                 bool isQualified = false;
                 bool isValid = false;
                 if (Qualified(rows[i]))
                 {
-                    TotalQualified++;
                     isQualified = true;
+                    isValid = Valid(rows, i);
 
-                    if (Valid(rows, i))
-                    {
-                        isValid = true;
-                        TotalValid++;
-                    }
-
-                    AnalysisCommon.CheckValidPeriod(isValid, isQualified, Convert.ToDateTime(rows[i][Common.DateColumn]),
-                                                    ref Last1YearQualified, ref Last1YearValid,
-                                                    ref Last3YearQualified, ref Last3YearValid,
-                                                    ref Last6YearQualified, ref Last6YearValid,
-                                                    ref Last10YearQualified, ref Last10YearValid);
                     var newRow = table.NewRow();
                     newRow[Common.SymbolIdColumn] = symbolId;
                     newRow[Common.MethodNameColumn] = _name;
@@ -138,22 +115,6 @@ namespace StockAnalyzer.CandleStick
                     table.Rows.Add(newRow);
                 }
             }
-
-            var parames = new List<KeyValuePair<string, string>>();
-            parames.Add(new KeyValuePair<string, string>(Common.MethodNameColumn, _name));
-            parames.Add(new KeyValuePair<string, string>(Common.SymbolIdColumn, symbolId));
-            parames.Add(new KeyValuePair<string, string>(Common.TotalValidColumn, TotalValid.ToString()));
-            parames.Add(new KeyValuePair<string, string>(Common.TotalQualifiedColumn, TotalQualified.ToString()));
-            parames.Add(new KeyValuePair<string, string>(Common.Last1YearValidColumn, Last1YearValid.ToString()));
-            parames.Add(new KeyValuePair<string, string>(Common.Last1YearQualifiedColumn, Last1YearQualified.ToString()));
-            parames.Add(new KeyValuePair<string, string>(Common.Last3YearValidColumn, Last3YearValid.ToString()));
-            parames.Add(new KeyValuePair<string, string>(Common.Last3YearQualifiedColumn, Last3YearQualified.ToString()));
-            parames.Add(new KeyValuePair<string, string>(Common.Last6YearValidColumn, Last6YearValid.ToString()));
-            parames.Add(new KeyValuePair<string, string>(Common.Last6YearQualifiedColumn, Last6YearQualified.ToString()));
-            parames.Add(new KeyValuePair<string, string>(Common.Last10YearQualifiedColumn, Last10YearQualified.ToString()));
-            parames.Add(new KeyValuePair<string, string>(Common.Last10YearValidColumn, Last10YearValid.ToString()));
-
-            SqlExecutor.ExecuteQuery(insertAnalysisStatisticSqlScript, parames);
 
             var ret = await SqlExecutor.BulkCopy(table);
             //AnalysisCommon.MergeAnalysisResultTable(rootTable, table);
