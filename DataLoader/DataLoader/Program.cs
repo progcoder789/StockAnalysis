@@ -51,6 +51,7 @@ namespace StockAnalyzer
             {
                 if (options.ReRun)
                 {
+                    //asdasdas
                     DBInitializer.DropAllTables();
                     DBInitializer.CreateAllTables();
                     SymbolLoader.LoadSymbols();
