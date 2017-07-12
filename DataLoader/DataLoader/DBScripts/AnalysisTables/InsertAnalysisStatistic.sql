@@ -1,0 +1,29 @@
+﻿IF NOT EXISTS (SELECT * FROM [dbo].[AnalysisStatistic] where [MethodName] = @MethodName and SymbolId = @SymbolId)
+Begin   
+    INSERT INTO [dbo].[AnalysisStatistic]
+           ([MethodName]
+           ,[SymbolId]
+           ,[TotalQualified]
+           ,[TotalValid]
+           ,[Last1YearValid]
+           ,[Last1YearQualified]
+           ,[Last3YearValid]
+           ,[Last3YearQualified]
+           ,[Last6YearValid]
+           ,[Last6YearQualified]
+           ,[Last10YearValid]
+           ,[Last10YearQualified])
+     VALUES
+           (@MethodName
+           ,@SymbolId
+           ,@TotalQualified
+           ,@TotalValid
+           ,@Last1YearValid
+           ,@Last1YearQualified
+           ,@Last3YearValid
+           ,@Last3YearQualified
+           ,@Last6YearValid
+           ,@Last6YearQualified
+           ,@Last10YearValid
+           ,@Last10YearQualified)
+End
