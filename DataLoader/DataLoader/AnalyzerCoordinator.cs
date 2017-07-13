@@ -5,8 +5,6 @@ using System.Configuration;
 using System.Data;
 using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace StockAnalyzer
@@ -26,7 +24,6 @@ namespace StockAnalyzer
 
         private static DataTable GetPrices(int symbolId, string symbol, int updatePeriod)
         {
-
             var date = Convert.ToDateTime(ConfigurationManager.AppSettings["StartTime"]);
             if (updatePeriod > 0)
             {
@@ -46,7 +43,6 @@ namespace StockAnalyzer
 
         private static void Analyze(IEnumerable<Type> allAnalyzers, List<SymbolData> symbols, int updatePeriod)
         {
-
             List<Task> tasks = new List<Task>();
 
             foreach (var symbol in symbols)
@@ -149,7 +145,6 @@ namespace StockAnalyzer
 
         private static void Consolidate(List<SymbolData> symbols)
         {
-
             List<Task> tasks = new List<Task>();
 
             foreach (var symbol in symbols)
@@ -172,7 +167,5 @@ namespace StockAnalyzer
             Analyze(types, symbols, updatePeriod);
             Consolidate(symbols);
         }
-
-
     }
 }

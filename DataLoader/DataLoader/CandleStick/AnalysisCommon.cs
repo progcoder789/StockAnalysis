@@ -1,23 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
-using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace StockAnalyzer.CandleStick
 {
     public class AnalysisCommon
     {
-      
         private static ReaderWriterLock analysisResultLocker = new ReaderWriterLock();
 
         public static readonly int TrendPeriod = Convert.ToInt32(ConfigurationManager.AppSettings["TrendPeriod"]);
-
-       
 
         public static bool CheckTrend(int index, int count)
         {

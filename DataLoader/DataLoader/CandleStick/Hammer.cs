@@ -24,7 +24,6 @@ namespace StockAnalyzer.CandleStick
                 return false;
             }
 
-
             var close = Convert.ToDecimal(dr[Common.CloseColumn]);
             var open = Convert.ToDecimal(dr[Common.OpenColumn]);
             var low = Convert.ToDecimal(dr[Common.LowColumn]);

@@ -1,13 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.IO;
-using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace StockAnalyzer
 {
@@ -88,7 +84,6 @@ namespace StockAnalyzer
         {
             MakeColumn(columnName, dataType, dataTable, true);
         }
-
 
         public static void MergeTable(DataTable rootTable, DataTable targetTable)
         {

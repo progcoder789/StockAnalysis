@@ -57,7 +57,6 @@ namespace StockAnalyzer
             SqlExecutor.ExecuteScriptFile(@"DBScripts\AnalysisTables\CreateTransferSP.sql");
         }
 
-
         public static void InitialzeForUpdate()
         {
             InitialzeForLoadOnly();
@@ -66,6 +65,5 @@ namespace StockAnalyzer
             //Create analysis statistic table
             SqlExecutor.ExecuteScriptFile(@"DBScripts\AnalysisTables\CreateAnalysisStatisticTable.sql");
         }
-
     }
 }

@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using Newtonsoft.Json;
-using System.IO;
 using System.Data;
 using System.Threading.Tasks;
 
@@ -77,7 +76,6 @@ namespace StockAnalyzer
                 {
                     try
                     {
-
                         var row = table.NewRow();
                         var date = (new DateTime(1970, 1, 1)).AddSeconds(price.date);
                         row[Common.SymbolIdColumn] = symbolId;
