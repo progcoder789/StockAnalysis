@@ -143,19 +143,21 @@ namespace StockAnalyzer
                     using (var bulkCopy = new SqlBulkCopy(Common.ConnectionString, SqlBulkCopyOptions.KeepNulls & SqlBulkCopyOptions.KeepIdentity))
                     {
                         // Set the timeout.
-                        bulkCopy.BulkCopyTimeout = 60;
+                        bulkCopy.BulkCopyTimeout = 600;
                         bulkCopy.BatchSize = dataTable.Rows.Count;
                         bulkCopy.DestinationTableName = dataTable.TableName;
                         await bulkCopy.WriteToServerAsync(dataTable);
                     }
-
                     done = true;
                 }
                 catch (Exception ex)
                 {
                     i++;
+                    Logger.LogError(string.Format("BulkCopy failed with retry {0} and exception: {1}", i, ex));
                     if (i > 3)
-                        throw ex;
+                    {
+                        Logger.LogError(string.Format("BulkCopy failed with {0}", ex));
+                    }
                 }
             }
             return true;

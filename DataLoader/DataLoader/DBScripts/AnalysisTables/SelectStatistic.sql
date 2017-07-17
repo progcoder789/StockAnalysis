@@ -1,2 +1,2 @@
 ﻿SELECT * FROM [dbo].[AnalysisResults]
-Where [SymbolId] = @SymbolId
+Where [SymbolId] = @SymbolId and [MethodName] = @MethodName

@@ -72,7 +72,8 @@ namespace StockAnalyzer
             if (!scriptPath.StartsWith("\\"))
                 scriptPath = "\\" + scriptPath;
 
-            return Directory.GetParent(Directory.GetParent(Path.GetDirectoryName(path)).FullName).FullName + scriptPath;
+            //return Directory.GetParent(Directory.GetParent(Path.GetDirectoryName(path)).FullName).FullName + scriptPath;
+            return Path.GetDirectoryName(path) + scriptPath;
         }
 
         public static void MakeNormalColumn(string columnName, string dataType, DataTable dataTable)

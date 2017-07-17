@@ -19,7 +19,7 @@ Begin
 		CONSTRAINT AnalysisStatistic_Method_Symbol UNIQUE ([MethodName], SymbolId)
 	);
 
-	CREATE INDEX symbolIndex
-	ON AnalysisStatistic (SymbolId);
+	CREATE INDEX Symbol_MethodNameIndex
+	ON AnalysisStatistic (SymbolId, MethodName);
 End
 

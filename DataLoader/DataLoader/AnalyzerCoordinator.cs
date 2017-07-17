@@ -12,7 +12,7 @@ namespace StockAnalyzer
     public class AnalyzerCoordinator
     {
         private static DataTable rootTable = AnalysisCommon.MakeAnalysisResultsTable();
-        private static Type interfaceType = typeof(IAnalyzerMethods);
+        private static Type parentType = typeof(AnalyzeMethods);
         private static string pathToStockBySymbolScriptFile = @"DBScripts\AnalysisTables\SelectStockBySymbol.sql";
         private static string selectStockBySymbolSqlScript = File.ReadAllText(Common.GetScriptPath(pathToStockBySymbolScriptFile));
 
@@ -21,6 +21,16 @@ namespace StockAnalyzer
 
         private static string pathToInsertAnalysisStatisticScriptFile = @"DBScripts\AnalysisTables\InsertAnalysisStatistic.sql";
         private static string insertAnalysisStatisticSqlScript = File.ReadAllText(Common.GetScriptPath(pathToInsertAnalysisStatisticScriptFile));
+
+        private static Type[] GetAllTypes()
+        {
+            var types = (from domainAssembly in AppDomain.CurrentDomain.GetAssemblies()
+                         from assemblyType in domainAssembly.GetTypes()
+                         where typeof(AnalyzeMethods).IsAssignableFrom(assemblyType)
+                         select assemblyType).ToArray();
+
+            return types;
+        }
 
         private static DataTable GetPrices(int symbolId, string symbol, int updatePeriod)
         {
@@ -51,9 +61,9 @@ namespace StockAnalyzer
 
                 foreach (var myType in allAnalyzers)
                 {
-                    if (myType != interfaceType)
+                    if (myType != parentType)
                     {
-                        var obj = (IAnalyzerMethods)Activator.CreateInstance(myType);
+                        var obj = (AnalyzeMethods)Activator.CreateInstance(myType);
                         Task t = Task.Run(async () => await obj.Analyze(prices, rootTable));
                         tasks.Add(t);
                     }
@@ -67,11 +77,12 @@ namespace StockAnalyzer
             var ret2 = SqlExecutor.ExecuteStoredProcedure("TransferAnalysisResults").Result;
         }
 
-        private static DataTable GetResults(int symbolId)
+        private static DataTable GetResults(int symbolId, string methodName)
         {
             var paramCollection = new List<KeyValuePair<string, string>>();
 
             paramCollection.Add(new KeyValuePair<string, string>(Common.SymbolIdColumn, symbolId.ToString()));
+            paramCollection.Add(new KeyValuePair<string, string>(Common.MethodNameColumn, methodName));
 
             var dt = AnalysisCommon.MakeAnalysisResultsTable();
 
@@ -79,24 +90,22 @@ namespace StockAnalyzer
             return dt;
         }
 
-        private static async Task<bool> CalculateStatistic(int symbolId)
+        private static async Task<bool> CalculateStatistic(int symbolId, string methodName)
         {
-            //var statisticTable = AnalysisCommon.MakeAnalysisStatisticTable();
-            var resultTable = GetResults(symbolId);
-            if (resultTable.Rows.Count == 0)
-                return false;
-
-            var methodName = resultTable.Rows[0][Common.MethodNameColumn].ToString();
-            Console.WriteLine("Calculate Statistic for Symbol {0} and Method {1}", symbolId, methodName);
-
             int TotalQualified, TotalValid, Last1YearQualified, Last1YearValid,
-         Last3YearQualified, Last3YearValid, Last6YearQualified, Last6YearValid,
-         Last10YearQualified, Last10YearValid;
+       Last3YearQualified, Last3YearValid, Last6YearQualified, Last6YearValid,
+       Last10YearQualified, Last10YearValid;
 
             TotalQualified = TotalValid = Last1YearQualified = Last1YearValid =
             Last3YearQualified = Last3YearValid = Last6YearQualified = Last6YearValid =
             Last10YearQualified = Last10YearValid = 0;
+            //var statisticTable = AnalysisCommon.MakeAnalysisStatisticTable();
 
+            var resultTable = GetResults(symbolId, methodName);
+            if (resultTable.Rows.Count == 0)
+                return false;
+
+            Console.WriteLine("Calculate Statistic for Symbol {0} and Method {1}", symbolId, methodName);
             int count = resultTable.Rows.Count;
 
             for (int i = 0; i < count; i++)
@@ -143,14 +152,22 @@ namespace StockAnalyzer
             return true;
         }
 
-        private static void Consolidate(List<SymbolData> symbols)
+        private static void Consolidate(List<SymbolData> symbols, IEnumerable<Type> allAnalyzers)
         {
             List<Task> tasks = new List<Task>();
 
             foreach (var symbol in symbols)
             {
-                Task t = Task.Run(async () => await CalculateStatistic(symbol.Id));
-                tasks.Add(t);
+                foreach (var analyzerType in allAnalyzers)
+                {
+                    if (analyzerType != parentType)
+                    {
+                        var obj = (AnalyzeMethods)Activator.CreateInstance(analyzerType);
+                        Task t = Task.Run(async () => await CalculateStatistic(symbol.Id, obj.Name));
+                        tasks.Add(t);
+                    }
+                }
+
             }
 
             if (tasks.Count > 0)
@@ -159,13 +176,12 @@ namespace StockAnalyzer
 
         public static void RunAnalysis(int updatePeriod = 0)
         {
-            var types = AppDomain.CurrentDomain.GetAssemblies()
-                .SelectMany(s => s.GetTypes())
-                .Where(p => interfaceType.IsAssignableFrom(p));
+            var types = GetAllTypes();
             var symbols = SqlExecutor.GetSymbols();
 
             Analyze(types, symbols, updatePeriod);
-            Consolidate(symbols);
+
+            Consolidate(symbols, types);
         }
     }
 }

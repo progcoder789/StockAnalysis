@@ -11,8 +11,8 @@ Begin
 		CONSTRAINT AnalysisResults_Method_Symbol_Date UNIQUE ([MethodName], SymbolId,[Date])
 	);
 
-	CREATE INDEX symbolIndex
-	ON AnalysisResults (SymbolId);
+	CREATE INDEX Symbol_MethodNameIndex
+	ON AnalysisResults (SymbolId, MethodName);
 End
 
 IF object_id('StagingAnalysisResults') is null
