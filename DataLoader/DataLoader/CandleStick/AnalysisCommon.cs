@@ -19,7 +19,7 @@ namespace StockAnalyzer.CandleStick
         private static string greatOperator = ">";
         public enum TrendDirection { Up, Down, None };
 
-        public static readonly int TrendPeriod = Convert.ToInt32(ConfigurationManager.AppSettings["TrendPeriod"]);
+        public static readonly int TrendShortPeriod = Convert.ToInt32(ConfigurationManager.AppSettings["TrendPeriod"]);
 
         private static bool CheckTrendDirectionHelper(DataRowCollection rows, int start, int end, string operatorString)
         {
@@ -71,7 +71,7 @@ namespace StockAnalyzer.CandleStick
         public static bool CheckTrendPeriod(int index, int count)
         {
             //unable to verify
-            if (index - TrendPeriod < 0 || index + TrendPeriod > count)
+            if (index - TrendShortPeriod < 0 || index + TrendShortPeriod > count)
                 return false;
 
             return true;
@@ -103,8 +103,8 @@ namespace StockAnalyzer.CandleStick
 
         public static void CheckTrendBeforeAfter(int index, DataRowCollection rows, out TrendDirection before, out TrendDirection after)
         {
-            before = CheckTrendDirection(rows, index - TrendPeriod, index);
-            after = CheckTrendDirection(rows, index + 1, index + TrendPeriod + 1);
+            before = CheckTrendDirection(rows, index - TrendShortPeriod, index);
+            after = CheckTrendDirection(rows, index + 1, index + TrendShortPeriod + 1);
         }
 
         public static void CheckValidPeriod(bool isValid, bool isQualified, DateTime date,

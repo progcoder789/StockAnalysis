@@ -1,10 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace StockAnalyzer.CandleStick
 {
@@ -12,8 +7,6 @@ namespace StockAnalyzer.CandleStick
     {
         private string _name = "CoverCS";
         private string _description = "";
-        private decimal trendPeriod = 5;
-        private decimal multiplier2 = 0.002m;
 
         public override string Description
         {
@@ -35,7 +28,7 @@ namespace StockAnalyzer.CandleStick
         {
             if (!AnalysisCommon.CheckTrendPeriod(index, rows.Count))
                 return false;
-            var trendDirect = AnalysisCommon.CheckTrendDirection(rows, index - AnalysisCommon.TrendPeriod, index);
+            var trendDirect = AnalysisCommon.CheckTrendDirection(rows, index - AnalysisCommon.TrendShortPeriod, index);
             if (trendDirect == AnalysisCommon.TrendDirection.None)
                 return false;
 

@@ -92,6 +92,7 @@
     <Compile Include="CandleStick\AnalysisCommon.cs" />
     <Compile Include="AnalyzerCoordinator.cs" />
     <Compile Include="CandleStick\AnalyzeMethods.cs" />
+    <Compile Include="CandleStick\BlackCloud.cs" />
     <Compile Include="CandleStick\Cover.cs" />
     <Compile Include="CandleStick\Hammer.cs" />
     <Compile Include="Common\Common.cs" />
@@ -109,9 +110,14 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="Input\companylist.csv" />
+    <Content Include="Input\companylist.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <None Include="Book\日本蜡烛图技术.pdf" />
     <None Include="packages.config" />
-    <None Include="Input\Symbols.csv" />
+    <Content Include="Input\Symbols.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <Content Include="DBScripts\AnalysisTables\CreateAnalysisAlertsTable.sql">
@@ -175,6 +181,7 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\Microsoft.Bcl.Build.1.0.14\tools\Microsoft.Bcl.Build.targets" Condition="Exists('..\packages\Microsoft.Bcl.Build.1.0.14\tools\Microsoft.Bcl.Build.targets')" />
   <Target Name="EnsureBclBuildImported" BeforeTargets="BeforeBuild" Condition="'$(BclBuildImported)' == ''">
