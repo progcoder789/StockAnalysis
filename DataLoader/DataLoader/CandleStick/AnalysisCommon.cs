@@ -9,6 +9,10 @@ namespace StockAnalyzer.CandleStick
     public class AnalysisCommon
     {
         private static ReaderWriterLock analysisResultLocker = new ReaderWriterLock();
+        public static readonly int TrendShortPeriod = Convert.ToInt32(ConfigurationManager.AppSettings["TrendShortPeriod"]);
+        public static readonly int TrendMediumPeriod = Convert.ToInt32(ConfigurationManager.AppSettings["TrendMediumPeriod"]);
+        public static readonly int TrendLongPeriod = Convert.ToInt32(ConfigurationManager.AppSettings["TrendLongPeriod"]);
+
         /// <summary>
         /// used for checking if trend is down
         /// </summary>
@@ -19,7 +23,7 @@ namespace StockAnalyzer.CandleStick
         private static string greatOperator = ">";
         public enum TrendDirection { Up, Down, None };
 
-        public static readonly int TrendShortPeriod = Convert.ToInt32(ConfigurationManager.AppSettings["TrendPeriod"]);
+        public enum TrendPeriod { Short, Medium, Long };
 
         private static bool CheckTrendDirectionHelper(DataRowCollection rows, int start, int end, string operatorString)
         {
@@ -62,22 +66,28 @@ namespace StockAnalyzer.CandleStick
             return true;
         }
 
-        /// <summary>
-        /// Check if the point has enough data for checking before and after trend
-        /// </summary>
-        /// <param name="index"></param>
-        /// <param name="count"></param>
-        /// <returns></returns>
-        public static bool CheckTrendPeriod(int index, int count)
+        private static int GetTrendPeriod(TrendPeriod trendPeriod)
         {
-            //unable to verify
-            if (index - TrendShortPeriod < 0 || index + TrendShortPeriod > count)
-                return false;
+            int nTrendPeriod = 0;
+            switch (trendPeriod)
+            {
+                case TrendPeriod.Short:
+                    nTrendPeriod = TrendShortPeriod;
+                    break;
+                case TrendPeriod.Medium:
+                    nTrendPeriod = TrendMediumPeriod;
+                    break;
+                case TrendPeriod.Long:
+                    nTrendPeriod = TrendLongPeriod;
+                    break;
+                default:
+                    break;
+            }
 
-            return true;
+            return nTrendPeriod;
         }
-    
-        public static TrendDirection CheckTrendDirection(DataRowCollection rows, int start, int end)
+
+        private static TrendDirection CheckTrendDirection(DataRowCollection rows, int start, int end)
         {
             var direction = TrendDirection.None;
             bool isDown = false;
@@ -88,7 +98,7 @@ namespace StockAnalyzer.CandleStick
                 isDown = CheckTrendDirectionHelper(rows, start, end, lessOperator);
                 isUp = CheckTrendDirectionHelper(rows, start, end, greatOperator);
             }
-            catch(SMANULLException ex)
+            catch (SMANULLException ex)
             {
                 direction = TrendDirection.None;
             }
@@ -101,10 +111,33 @@ namespace StockAnalyzer.CandleStick
             return direction;
         }
 
-        public static void CheckTrendBeforeAfter(int index, DataRowCollection rows, out TrendDirection before, out TrendDirection after)
+        /// <summary>
+        /// Check if the point has enough data for checking before and after trend
+        /// </summary>
+        /// <param name="index"></param>
+        /// <param name="count"></param>
+        /// <returns></returns>
+        public static bool CheckTrendPeriod(int index, int count, TrendPeriod trendPeriod)
         {
-            before = CheckTrendDirection(rows, index - TrendShortPeriod, index);
-            after = CheckTrendDirection(rows, index + 1, index + TrendShortPeriod + 1);
+            int nTrendPeriod = GetTrendPeriod(trendPeriod);
+
+            //unable to verify
+            if (index - nTrendPeriod < 0 || index + nTrendPeriod > count)
+                return false;
+
+            return true;
+        }
+    
+        public static TrendDirection CheckBeforeTrendDirection(DataRowCollection rows, int index, TrendPeriod trendPeriod)
+        {
+            int nTrendPeriod = GetTrendPeriod(trendPeriod);
+            return CheckTrendDirection(rows, index - nTrendPeriod, index);
+        }
+
+        public static TrendDirection CheckAfterTrendDirection(DataRowCollection rows, int index, TrendPeriod trendPeriod)
+        {
+            int nTrendPeriod = GetTrendPeriod(trendPeriod);
+            return CheckTrendDirection(rows, index + 1, index + nTrendPeriod + 1);
         }
 
         public static void CheckValidPeriod(bool isValid, bool isQualified, DateTime date,
@@ -118,7 +151,6 @@ namespace StockAnalyzer.CandleStick
                 //last year
                 if (DateTime.Now.Subtract(date).TotalDays <= 365)
                 {
-
                     Last1YearQualified++;
                     if (isValid)
                         Last1YearValid++;

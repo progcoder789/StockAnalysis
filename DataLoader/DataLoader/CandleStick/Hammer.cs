@@ -7,6 +7,7 @@ namespace StockAnalyzer.CandleStick
     {
         private string _name = "HammerHangCS";
         private string _description = "";
+        private AnalysisCommon.TrendPeriod _trendPeriod = AnalysisCommon.TrendPeriod.Short;
         private decimal multiplier1 = 1.9m;
         private decimal multiplier2 = 0.002m;
 
@@ -25,21 +26,20 @@ namespace StockAnalyzer.CandleStick
                 return _name;
             }
         }
+
+        public override AnalysisCommon.TrendPeriod TrendPeriod
+        {
+            get
+            {
+                return _trendPeriod;
+            }
+        }
+
         public override bool Qualified(DataRowCollection rows, int index)
         {
-            var dr = rows[index];
-            if (dr[Common.CloseColumn] == DBNull.Value ||
-               dr[Common.OpenColumn] == DBNull.Value ||
-                dr[Common.LowColumn] == DBNull.Value ||
-                dr[Common.HighColumn] == DBNull.Value)
-            {
+            decimal open, close, high, low;
+            if (!TryGetPriceValues(rows[index], out open, out close, out high, out low))
                 return false;
-            }
-
-            var close = Convert.ToDecimal(dr[Common.CloseColumn]);
-            var open = Convert.ToDecimal(dr[Common.OpenColumn]);
-            var low = Convert.ToDecimal(dr[Common.LowColumn]);
-            var high = Convert.ToDecimal(dr[Common.HighColumn]);
 
             var top = close;
             var bottom = open;

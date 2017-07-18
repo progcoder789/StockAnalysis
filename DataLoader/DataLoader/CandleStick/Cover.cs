@@ -7,6 +7,7 @@ namespace StockAnalyzer.CandleStick
     {
         private string _name = "CoverCS";
         private string _description = "";
+        private AnalysisCommon.TrendPeriod _trendPeriod = AnalysisCommon.TrendPeriod.Short;
 
         public override string Description
         {
@@ -24,35 +25,28 @@ namespace StockAnalyzer.CandleStick
             }
         }
 
-        private bool hasTrend(DataRowCollection rows, int index)
+        public override AnalysisCommon.TrendPeriod TrendPeriod
         {
-            if (!AnalysisCommon.CheckTrendPeriod(index, rows.Count))
-                return false;
-            var trendDirect = AnalysisCommon.CheckTrendDirection(rows, index - AnalysisCommon.TrendShortPeriod, index);
-            if (trendDirect == AnalysisCommon.TrendDirection.None)
-                return false;
-
-            return true;
+            get
+            {
+                return _trendPeriod;
+            }
         }
 
         public override bool Qualified(DataRowCollection rows, int index)
         {
-            if (!hasTrend(rows, index))
+            if (!BeforeHasTrend(rows, index))
                 return false;
-            decimal currentOpen, currentClose, previousOpen, previousClose;
 
-            try
-            {
-                currentOpen = Convert.ToDecimal(rows[index][Common.OpenColumn]);
-                currentClose = Convert.ToDecimal(rows[index][Common.CloseColumn]);
-                previousOpen = Convert.ToDecimal(rows[index - 1][Common.OpenColumn]);
-                previousClose = Convert.ToDecimal(rows[index][Common.CloseColumn]);
-            }
-            catch (InvalidCastException ex)
-            {
-                // one of the data is not decimal(could be DBNull)
+            decimal currentOpen, currentClose, previousOpen, previousClose;
+            decimal currentHigh, currentLow, previousHigh, previousLow;
+
+            if (!TryGetPriceValues(rows[index], out currentOpen, out currentClose, out currentHigh, out currentLow))
                 return false;
-            }
+
+            if (!TryGetPriceValues(rows[index - 1], out previousOpen, out previousClose, out previousHigh, out previousLow))
+                return false;
+
             var previousTop = previousClose > previousOpen ? previousClose : previousOpen;
             var previousBottom = previousClose > previousOpen ? previousOpen : previousClose;
 

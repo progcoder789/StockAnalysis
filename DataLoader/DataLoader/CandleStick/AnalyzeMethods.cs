@@ -13,6 +13,8 @@ namespace StockAnalyzer.CandleStick
         public abstract string Name { get; }
         public abstract string Description { get; }
 
+        public abstract AnalysisCommon.TrendPeriod TrendPeriod { get; }
+
         public abstract bool Qualified(DataRowCollection rows, int index);
         public abstract bool Valid(DataRowCollection rows, int index);
 
@@ -58,16 +60,16 @@ namespace StockAnalyzer.CandleStick
 
         public virtual bool TurnOver(DataRowCollection rows, int index)
         {
-            if (!AnalysisCommon.CheckTrendPeriod(index, rows.Count))
+            if (!AnalysisCommon.CheckTrendPeriod(index, rows.Count, TrendPeriod))
                 return false;
 
             AnalysisCommon.TrendDirection before = AnalysisCommon.TrendDirection.None;
             AnalysisCommon.TrendDirection after = AnalysisCommon.TrendDirection.None;
 
-
             try
             {
-                AnalysisCommon.CheckTrendBeforeAfter(index, rows, out before, out after);
+                before = AnalysisCommon.CheckBeforeTrendDirection(rows, index, TrendPeriod);
+                after = AnalysisCommon.CheckAfterTrendDirection(rows, index, TrendPeriod);
             }
             catch (Exception ex)
             {
@@ -82,6 +84,37 @@ namespace StockAnalyzer.CandleStick
             }
 
             return false;
+        }
+
+        public virtual bool TryGetPriceValues(DataRow dr, out decimal open, out decimal close, out decimal high, out decimal low)
+        {
+            open = close = high = low = 0;
+            try
+            {
+                open = Convert.ToDecimal(dr[Common.OpenColumn]);
+                close = Convert.ToDecimal(dr[Common.CloseColumn]);
+                high = Convert.ToDecimal(dr[Common.HighColumn]);
+                low = Convert.ToDecimal(dr[Common.LowColumn]);
+            }
+            catch (InvalidCastException ex)
+            {
+                // one of the data is not decimal(could be DBNull)
+                return false;
+            }
+
+            return true;
+        }
+
+        public virtual bool BeforeHasTrend(DataRowCollection rows, int index)
+        {
+            if (!AnalysisCommon.CheckTrendPeriod(index, rows.Count, TrendPeriod))
+                return false;
+
+            var trendDirect = AnalysisCommon.CheckBeforeTrendDirection(rows, index, TrendPeriod);
+            if (trendDirect == AnalysisCommon.TrendDirection.None)
+                return false;
+
+            return true;
         }
     }
 }

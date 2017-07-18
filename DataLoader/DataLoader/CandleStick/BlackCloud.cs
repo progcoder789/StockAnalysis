@@ -5,8 +5,11 @@ namespace StockAnalyzer.CandleStick
 {
     public class BlackCloud : AnalyzeMethods
     {
-        private string _name = "CoverCS";
-        private string _description = "";
+        private string _name = "BlackCloudCS";
+        private string _description = "Used to identify ascending turn to descending";
+        private AnalysisCommon.TrendPeriod _trendPeriod = AnalysisCommon.TrendPeriod.Long;
+        private decimal multiplier = 0.005m;
+        private decimal multiplier2 = 0.6m;
 
         public override string Description
         {
@@ -24,50 +27,63 @@ namespace StockAnalyzer.CandleStick
             }
         }
 
-        private bool hasTrend(DataRowCollection rows, int index)
+        public override AnalysisCommon.TrendPeriod TrendPeriod
         {
-            if (!AnalysisCommon.CheckTrendPeriod(index, rows.Count))
-                return false;
-            var trendDirect = AnalysisCommon.CheckTrendDirection(rows, index - AnalysisCommon.TrendShortPeriod, index);
-            if (trendDirect == AnalysisCommon.TrendDirection.None)
-                return false;
-
-            return true;
+            get
+            {
+                return _trendPeriod;
+            }
         }
 
         public override bool Qualified(DataRowCollection rows, int index)
         {
-            if (!hasTrend(rows, index))
+            if (!BeforeHasTrend(rows, index))
                 return false;
+
+            //Before trend must be UP
+            if (AnalysisCommon.CheckBeforeTrendDirection(rows, index, _trendPeriod) != AnalysisCommon.TrendDirection.Up)
+                return false;
+
             decimal currentOpen, currentClose, previousOpen, previousClose;
+            decimal currentHigh, currentLow, previousHigh, previousLow;
 
-            try
-            {
-                currentOpen = Convert.ToDecimal(rows[index][Common.OpenColumn]);
-                currentClose = Convert.ToDecimal(rows[index][Common.CloseColumn]);
-                previousOpen = Convert.ToDecimal(rows[index - 1][Common.OpenColumn]);
-                previousClose = Convert.ToDecimal(rows[index][Common.CloseColumn]);
-            }
-            catch (InvalidCastException ex)
-            {
-                // one of the data is not decimal(could be DBNull)
-                return false;
-            }
-            var previousTop = previousClose > previousOpen ? previousClose : previousOpen;
-            var previousBottom = previousClose > previousOpen ? previousOpen : previousClose;
-
-            var currentTop = currentClose > currentOpen ? currentClose : currentOpen;
-            var currentBottom = previousClose > previousOpen ? previousOpen : previousClose;
-
-            //current top must be greater than previous top
-            if (currentTop < previousTop)
-                return false;
-            //current bottom must be less than previous bottom
-            if (currentBottom > previousBottom)
+            if (!TryGetPriceValues(rows[index], out currentOpen, out currentClose, out currentHigh, out currentLow))
                 return false;
 
-            //current price direct must be opposite to previous
-            if ((currentOpen - currentClose) * (previousOpen - previousClose) > 0)
+            if (!TryGetPriceValues(rows[index - 1], out previousOpen, out previousClose, out previousHigh, out previousLow))
+                return false;
+
+            //Previous day must be up
+            if (previousClose < previousOpen)
+                return false;
+            //Current day must be down
+            if (currentClose > currentOpen)
+                return false;
+
+            //Current Open must be greater than previous close
+            if (currentOpen < previousClose)
+                return false;
+
+            //Current close must be greater than previous open 
+            if (currentClose < previousOpen)
+                return false;
+
+            //Shadow line must be very short for previous
+            if ((previousHigh - previousClose) > (previousHigh - previousLow) * multiplier)
+                return false;
+
+            if ((previousOpen - previousLow) > (previousHigh - previousLow) * multiplier)
+                return false;
+
+            //Shadow line must be very short for current
+            if ((currentHigh - currentOpen) > (currentHigh - currentLow) * multiplier)
+                return false;
+
+            if ((currentClose - currentLow) > (currentHigh - currentLow) * multiplier)
+                return false;
+
+            //current close must be in body of previous bar for more than 60%
+            if ((previousClose - currentClose) < (previousClose - previousOpen) * multiplier2)
                 return false;
 
             return true;
@@ -75,7 +91,10 @@ namespace StockAnalyzer.CandleStick
 
         public override bool Valid(DataRowCollection rows, int index)
         {
-            return base.TurnOver(rows, index);
+            if (AnalysisCommon.CheckAfterTrendDirection(rows, index, AnalysisCommon.TrendPeriod.Short) != AnalysisCommon.TrendDirection.Down)
+                return false;
+
+            return true;
         }
     }
 }
