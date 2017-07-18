@@ -8,7 +8,7 @@ namespace StockAnalyzer.CandleStick
         private string _name = "HammerHangCS";
         private string _description = "";
         private AnalysisCommon.TrendPeriod _trendPeriod = AnalysisCommon.TrendPeriod.Short;
-        private decimal multiplier1 = 1.9m;
+        private decimal multiplier1 = 2.2m;
         private decimal multiplier2 = 0.002m;
 
         public override string Description
@@ -50,7 +50,7 @@ namespace StockAnalyzer.CandleStick
                 top = open;
             }
 
-            //下影线必须超过实体的1.8倍
+            //下影线必须超过实体的2.2倍
             if (Math.Abs(bottom - low) < Math.Abs(top - bottom) * multiplier1)
             {
                 return false;

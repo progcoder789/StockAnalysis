@@ -95,6 +95,7 @@
     <Compile Include="CandleStick\BlackCloud.cs" />
     <Compile Include="CandleStick\Cover.cs" />
     <Compile Include="CandleStick\Hammer.cs" />
+    <Compile Include="CandleStick\Penetration.cs" />
     <Compile Include="Common\Common.cs" />
     <Compile Include="DBInitializer.cs" />
     <Compile Include="Common\DTO.cs" />
