@@ -2,9 +2,9 @@
 
 namespace StockAnalyzer.CandleStick
 {
-    public class BlackCloud : AnalyzeMethods
+    public class Star : AnalyzeMethods
     {
-        private string _name = "BlackCloudCS";
+        private string _name = "Star";
         private string _description = "Used to identify ascending turn to descending";
         private AnalysisCommon.TrendPeriod _trendPeriod = AnalysisCommon.TrendPeriod.Long;
         private decimal multiplier = 0.005m;
@@ -41,23 +41,24 @@ namespace StockAnalyzer.CandleStick
 
             if (!BeforeHasTrend(rows, index))
                 return false;
-            //Before trend must be UP
-            if (AnalysisCommon.CheckBeforeTrendDirection(rows, index, _trendPeriod) != AnalysisCommon.TrendDirection.Up)
+
+            //Before trend must be Down
+            if (AnalysisCommon.CheckBeforeTrendDirection(rows, index, _trendPeriod) != AnalysisCommon.TrendDirection.Down)
                 return false;
 
-            //Previous day must be up
-            if (beforePrice.close < beforePrice.open)
+            //Previous day must be down
+            if (beforePrice.open < beforePrice.close)
                 return false;
-            //Current day must be down
-            if (currentPrice.close > currentPrice.open)
-                return false;
-
-            //Current Open must be greater than previous close
-            if (currentPrice.open < beforePrice.close)
+            //Current day must be up
+            if (currentPrice.open > currentPrice.close)
                 return false;
 
-            //Current close must be greater than previous open 
-            if (currentPrice.close < beforePrice.open)
+            //Current Open must be less than previous close
+            if (currentPrice.open > beforePrice.close)
+                return false;
+
+            //Current close must be greater than previous close 
+            if (currentPrice.close < beforePrice.close)
                 return false;
 
             //Shadow line must be very short for previous
@@ -75,7 +76,7 @@ namespace StockAnalyzer.CandleStick
                 return false;
 
             //current close must be in body of previous bar for more than 60%
-            if ((beforePrice.close - currentPrice.close) < (beforePrice.close - beforePrice.open) * multiplier2)
+            if ((currentPrice.close - beforePrice.close) < (beforePrice.open - beforePrice.close) * multiplier2)
                 return false;
 
             return true;
@@ -83,7 +84,7 @@ namespace StockAnalyzer.CandleStick
 
         public override bool Valid(DataRowCollection rows, int index)
         {
-            if (AnalysisCommon.CheckAfterTrendDirection(rows, index, AnalysisCommon.TrendPeriod.Short) != AnalysisCommon.TrendDirection.Down)
+            if (AnalysisCommon.CheckAfterTrendDirection(rows, index, AnalysisCommon.TrendPeriod.Short) != AnalysisCommon.TrendDirection.Up)
                 return false;
 
             return true;

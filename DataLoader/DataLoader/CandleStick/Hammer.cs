@@ -35,29 +35,30 @@ namespace StockAnalyzer.CandleStick
             }
         }
 
-        public override bool Qualified(DataRowCollection rows, int index)
+        public override bool Qualified(DataRowCollection rows, int index, StockData currentPrice, StockData beforePrice, StockData afterPrice)
         {
-            decimal open, close, high, low;
-            if (!TryGetPriceValues(rows[index], out open, out close, out high, out low))
+            if (currentPrice == null)
                 return false;
 
-            var top = close;
-            var bottom = open;
+            var top = currentPrice.close.Value;
+            var bottom = currentPrice.open.Value;
 
-            if (close < open)
+            if (currentPrice.close < currentPrice.open)
             {
-                bottom = close;
-                top = open;
+                bottom = currentPrice.close.Value;
+                top = currentPrice.open.Value;
             }
 
             //下影线必须超过实体的2.2倍
-            if (Math.Abs(bottom - low) < Math.Abs(top - bottom) * multiplier1)
+            if (Math.Abs(bottom - currentPrice.low.Value) < Math.Abs(top - bottom) * multiplier1 ||
+                Math.Abs(bottom - currentPrice.low.Value) == 0 ||
+                Math.Abs(top - bottom) == 0)
             {
                 return false;
             }
 
             //上影线必须很短
-            if (high - top > top * multiplier2)
+            if (currentPrice.high.Value - top > top * multiplier2)
                 return false;
 
             return true;

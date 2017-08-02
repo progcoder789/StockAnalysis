@@ -6,7 +6,7 @@
            ,[High]
            ,[Low]
 		   ,[Volume]
-           ,[UnAdjustClose])
+           ,[AdjustClose])
      VALUES
            (@SymbolId,
 		    @Date,
@@ -15,4 +15,4 @@
 			@High,
 			@Low,
 			@TradeVolume,
-			@UnAdjustClose)
+			@AdjustClose)

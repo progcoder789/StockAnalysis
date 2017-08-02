@@ -25,8 +25,8 @@ namespace StockAnalyzer
             Common.MakeNormalColumn(Common.OpenColumn, "System.Decimal", table);
             Common.MakeNormalColumn(Common.HighColumn, "System.Decimal", table);
             Common.MakeNormalColumn(Common.LowColumn, "System.Decimal", table);
+            Common.MakeNormalColumn(Common.AdjustCloseColumn, "System.Decimal", table);
             Common.MakeNormalColumn(Common.TradeVolumeColumn, "System.Int32", table);
-            Common.MakeNormalColumn(Common.UnAdjustCloseColumn, "System.Decimal", table);
             Common.MakeNormalColumn(Common.SMA5Column, "System.Decimal", table);
             Common.MakeNormalColumn(Common.SMA10Column, "System.Decimal", table);
             Common.MakeNormalColumn(Common.SMA30Column, "System.Decimal", table);
@@ -101,10 +101,10 @@ namespace StockAnalyzer
                         else
                             row[Common.LowColumn] = DBNull.Value;
 
-                        if (price.unadjclose.HasValue)
-                            row[Common.UnAdjustCloseColumn] = price.unadjclose;
+                        if (price.adjclose.HasValue)
+                            row[Common.AdjustCloseColumn] = price.adjclose;
                         else
-                            row[Common.UnAdjustCloseColumn] = DBNull.Value;
+                            row[Common.AdjustCloseColumn] = DBNull.Value;
 
                         if (price.volume.HasValue)
                             row[Common.TradeVolumeColumn] = price.volume;

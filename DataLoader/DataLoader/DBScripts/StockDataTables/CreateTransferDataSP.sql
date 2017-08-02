@@ -26,7 +26,7 @@ BEGIN
       ,[Close]
       ,[High]
       ,[Low]
-      ,[UnAdjustClose]
+      ,[AdjustClose]
 	  ,[TradeVolume]
       ,[SMA5]
       ,[SMA10]

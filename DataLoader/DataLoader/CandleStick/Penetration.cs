@@ -34,8 +34,11 @@ namespace StockAnalyzer.CandleStick
             }
         }
 
-        public override bool Qualified(DataRowCollection rows, int index)
+        public override bool Qualified(DataRowCollection rows, int index, StockData currentPrice, StockData beforePrice, StockData afterPrice)
         {
+            if (currentPrice == null || beforePrice == null)
+                return false;
+
             if (!BeforeHasTrend(rows, index))
                 return false;
 
@@ -43,46 +46,37 @@ namespace StockAnalyzer.CandleStick
             if (AnalysisCommon.CheckBeforeTrendDirection(rows, index, _trendPeriod) != AnalysisCommon.TrendDirection.Down)
                 return false;
 
-            decimal currentOpen, currentClose, previousOpen, previousClose;
-            decimal currentHigh, currentLow, previousHigh, previousLow;
-
-            if (!TryGetPriceValues(rows[index], out currentOpen, out currentClose, out currentHigh, out currentLow))
-                return false;
-
-            if (!TryGetPriceValues(rows[index - 1], out previousOpen, out previousClose, out previousHigh, out previousLow))
-                return false;
-
             //Previous day must be down
-            if (previousOpen < previousClose)
+            if (beforePrice.open < beforePrice.close)
                 return false;
             //Current day must be up
-            if (currentOpen > currentClose)
+            if (currentPrice.open > currentPrice.close)
                 return false;
 
             //Current Open must be less than previous close
-            if (currentOpen > previousClose)
+            if (currentPrice.open > beforePrice.close)
                 return false;
 
             //Current close must be greater than previous close 
-            if (currentClose < previousClose)
+            if (currentPrice.close < beforePrice.close)
                 return false;
 
             //Shadow line must be very short for previous
-            if ((previousHigh - previousClose) > (previousHigh - previousLow) * multiplier)
+            if ((beforePrice.high - beforePrice.close) > (beforePrice.high - beforePrice.low) * multiplier)
                 return false;
 
-            if ((previousOpen - previousLow) > (previousHigh - previousLow) * multiplier)
+            if ((beforePrice.open - beforePrice.low) > (beforePrice.high - beforePrice.low) * multiplier)
                 return false;
 
             //Shadow line must be very short for current
-            if ((currentHigh - currentOpen) > (currentHigh - currentLow) * multiplier)
+            if ((currentPrice.high - currentPrice.open) > (currentPrice.high - currentPrice.low) * multiplier)
                 return false;
 
-            if ((currentClose - currentLow) > (currentHigh - currentLow) * multiplier)
+            if ((currentPrice.close - currentPrice.low) > (currentPrice.high - currentPrice.low) * multiplier)
                 return false;
 
             //current close must be in body of previous bar for more than 60%
-            if ((currentClose - previousClose) < (previousOpen - previousClose) * multiplier2)
+            if ((currentPrice.close - beforePrice.close) < (beforePrice.open - beforePrice.close) * multiplier2)
                 return false;
 
             return true;

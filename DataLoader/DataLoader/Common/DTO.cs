@@ -7,8 +7,8 @@
         public decimal? high;
         public decimal? low;
         public decimal? close;
-        public decimal? unadjclose;
         public int? volume;
+        public decimal? adjclose;
     }
 
     public class SymbolData

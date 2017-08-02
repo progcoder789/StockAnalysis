@@ -1,5 +1,4 @@
-﻿using System;
-using System.Data;
+﻿using System.Data;
 
 namespace StockAnalyzer.CandleStick
 {
@@ -33,25 +32,19 @@ namespace StockAnalyzer.CandleStick
             }
         }
 
-        public override bool Qualified(DataRowCollection rows, int index)
+        public override bool Qualified(DataRowCollection rows, int index, StockData currentPrice, StockData beforePrice, StockData afterPrice)
         {
+            if (currentPrice == null || beforePrice == null)
+                return false;
+
             if (!BeforeHasTrend(rows, index))
                 return false;
 
-            decimal currentOpen, currentClose, previousOpen, previousClose;
-            decimal currentHigh, currentLow, previousHigh, previousLow;
+            var previousTop = beforePrice.close > beforePrice.open ? beforePrice.close : beforePrice.open;
+            var previousBottom = beforePrice.close > beforePrice.open ? beforePrice.open : beforePrice.close;
 
-            if (!TryGetPriceValues(rows[index], out currentOpen, out currentClose, out currentHigh, out currentLow))
-                return false;
-
-            if (!TryGetPriceValues(rows[index - 1], out previousOpen, out previousClose, out previousHigh, out previousLow))
-                return false;
-
-            var previousTop = previousClose > previousOpen ? previousClose : previousOpen;
-            var previousBottom = previousClose > previousOpen ? previousOpen : previousClose;
-
-            var currentTop = currentClose > currentOpen ? currentClose : currentOpen;
-            var currentBottom = previousClose > previousOpen ? previousOpen : previousClose;
+            var currentTop = currentPrice.close > currentPrice.open ? currentPrice.close : currentPrice.open;
+            var currentBottom = beforePrice.close > beforePrice.open ? beforePrice.open : beforePrice.close;
 
             //current top must be greater than previous top
             if (currentTop < previousTop)
@@ -60,8 +53,8 @@ namespace StockAnalyzer.CandleStick
             if (currentBottom > previousBottom)
                 return false;
 
-            //current price direct must be opposite to previous
-            if ((currentOpen - currentClose) * (previousOpen - previousClose) > 0)
+            //current price direction must be opposite to previous
+            if ((currentPrice.open - currentPrice.close) * (beforePrice.open - beforePrice.close) > 0)
                 return false;
 
             return true;

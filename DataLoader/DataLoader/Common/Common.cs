@@ -26,7 +26,7 @@ namespace StockAnalyzer
         public static readonly string LowColumn = "Low";
         public static readonly string TradeVolumeColumn = "TradeVolume";
         public static readonly string HighColumn = "High";
-        public static readonly string UnAdjustCloseColumn = "UnAdjustClose";
+        public static readonly string AdjustCloseColumn = "AdjustClose";
 
         public static readonly string SMA5Column = "SMA5";
         public static readonly string SMA10Column = "SMA10";

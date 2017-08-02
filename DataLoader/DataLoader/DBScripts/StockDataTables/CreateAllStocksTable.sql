@@ -9,7 +9,7 @@ CREATE TABLE AllStocks (
 		[Close] Decimal(18,2),
 		[High]  Decimal(18,2),
 		[Low]   Decimal(18,2),
-		[UnAdjustClose] Decimal(18,2),
+		[AdjustClose] Decimal(18,2),
 		[TradeVolume] INT,
 		[SMA5]  Decimal(18,2),
 		[SMA10] Decimal(18,2),
